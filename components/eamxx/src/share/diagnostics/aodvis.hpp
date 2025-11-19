@@ -19,11 +19,9 @@ class AODVis : public AtmosphereDiagnostic {
   std::string name() const override { return "AerosolOpticalDepth550nm"; }
 
   // Set the grid
-  void set_grids(
-      const std::shared_ptr<const GridsManager> grids_manager) override;
+  void set_grids(const std::shared_ptr<const GridsManager> grids_manager) override;
 
-  void initialize_impl(
-      const RunType /*run_type*/) override;
+  void initialize_impl(const RunType /*run_type*/) override;
 
  protected:
 #ifdef KOKKOS_ENABLE_CUDA

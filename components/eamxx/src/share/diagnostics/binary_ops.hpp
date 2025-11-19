@@ -16,16 +16,16 @@ class BinaryOpsDiag : public AtmosphereDiagnostic {
   BinaryOpsDiag(const ekat::Comm &comm, const ekat::ParameterList &params);
 
   // The name of the diagnostic CLASS (not the computed field)
-  std::string name() const { return "BinaryOpsDiag"; }
+  std::string name() const override { return "BinaryOpsDiag"; }
 
   // Set the grid
-  void set_grids(const std::shared_ptr<const GridsManager> grids_manager);
+  void set_grids(const std::shared_ptr<const GridsManager> grids_manager) override;
 
  protected:
 #ifdef KOKKOS_ENABLE_CUDA
  public:
 #endif
-  void compute_diagnostic_impl();
+  void compute_diagnostic_impl() override;
 
   void initialize_impl(const RunType /*run_type*/) override;
 

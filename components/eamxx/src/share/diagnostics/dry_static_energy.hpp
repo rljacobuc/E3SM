@@ -18,10 +18,10 @@ public:
   DryStaticEnergyDiagnostic (const ekat::Comm& comm, const ekat::ParameterList& params);
 
   // The name of the diagnostic CLASS (not the computed field)
-  std::string name () const { return "DryStaticEnergy"; }
+  std::string name () const override { return "DryStaticEnergy"; }
 
   // Set the grid
-  void set_grids (const std::shared_ptr<const GridsManager> grids_manager);
+  void set_grids (const std::shared_ptr<const GridsManager> grids_manager) override;
 
 protected:
 #ifdef KOKKOS_ENABLE_CUDA

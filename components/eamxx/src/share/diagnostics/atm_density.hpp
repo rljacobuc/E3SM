@@ -13,16 +13,16 @@ public:
   AtmDensityDiagnostic (const ekat::Comm& comm, const ekat::ParameterList& params);
 
   // The name of the diagnostic CLASS (not the computed field)
-  std::string name () const { return "AtmosphereDensity"; }
+  std::string name () const override { return "AtmosphereDensity"; }
 
   // Set the grid
-  void set_grids (const std::shared_ptr<const GridsManager> grids_manager);
+  void set_grids (const std::shared_ptr<const GridsManager> grids_manager) override;
 
 protected:
 #ifdef KOKKOS_ENABLE_CUDA
 public:
 #endif
-  void compute_diagnostic_impl ();
+  void compute_diagnostic_impl () override;
 protected:
 
   // Keep track of field dimensions
