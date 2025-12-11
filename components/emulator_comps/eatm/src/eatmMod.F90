@@ -21,51 +21,33 @@ module eatmMod
      !JW TODO: load up all arrays into a big 3D container? lots of 2D arrays?
      !         for now, using 2D arrays with EAM naming convention
      !         and EAM sign conventions
-  ! imported arrays first
-  real(kind=R8), dimension(:,:), allocatable, public :: shf          ! sensible heat flux
-  real(kind=R8), dimension(:,:), allocatable, public :: cflx         ! constituent flux (emissions)
-  real(kind=R8), dimension(:,:), allocatable, public :: lhf          ! latent heat flux
-  real(kind=R8), dimension(:,:), allocatable, public :: wsx          ! surface u-stress (N)
-  real(kind=R8), dimension(:,:), allocatable, public :: wsy          ! surface v-stress (N)
-  real(kind=R8), dimension(:,:), allocatable, public :: lwup         ! longwave up radiative flux
-  real(kind=R8), dimension(:,:), allocatable, public :: asdir        ! albedo: shortwave, direct
-  real(kind=R8), dimension(:,:), allocatable, public :: aldir        ! albedo: longwave, direct
-  real(kind=R8), dimension(:,:), allocatable, public :: asdif        ! albedo: shortwave, diffuse
-  real(kind=R8), dimension(:,:), allocatable, public :: aldif        ! albedo: longwave, diffuse
-  real(kind=R8), dimension(:,:), allocatable, public :: ts           ! merged surface temp
-  real(kind=R8), dimension(:,:), allocatable, public :: sst          ! sea surface temp
-  real(kind=R8), dimension(:,:), allocatable, public :: snowhland    ! snow depth (liquid water equivalent) over land
-  real(kind=R8), dimension(:,:), allocatable, public :: snowhice     ! snow depth over ice
-  real(kind=R8), dimension(:,:), allocatable, public :: tref         ! ref height surface air temp
-  real(kind=R8), dimension(:,:), allocatable, public :: qref         ! ref height specific humidity
-  real(kind=R8), dimension(:,:), allocatable, public :: u10          ! 10m wind speed
-  real(kind=R8), dimension(:,:), allocatable, public :: u10withgusts ! 10m wind speed with gustiness
-  real(kind=R8), dimension(:,:), allocatable, public :: icefrac      ! sea-ice areal fraction
-  real(kind=R8), dimension(:,:), allocatable, public :: ocnfrac      ! ocean areal fraction
-  real(kind=R8), dimension(:,:), allocatable, public :: lndfrac      ! land area fraction
 
-  ! exported arrays
-  real(kind=R8), dimension(:,:), allocatable, public :: zbot         ! bot level height above surface
-  real(kind=R8), dimension(:,:), allocatable, public :: ubot         ! bot level u wind
-  real(kind=R8), dimension(:,:), allocatable, public :: vbot         ! bot level v wind
-  real(kind=R8), dimension(:,:), allocatable, public :: tbot         ! bot level temperature
-  real(kind=R8), dimension(:,:), allocatable, public :: thbot        ! bot level potential temperature
-  real(kind=R8), dimension(:,:), allocatable, public :: qbot         ! bot level specific humidity
-  real(kind=R8), dimension(:,:), allocatable, public :: rho          ! bot level density
-  real(kind=R8), dimension(:,:), allocatable, public :: pbot         ! bot level pressure
-  real(kind=R8), dimension(:,:), allocatable, public :: psl          ! sea level atm pressure
-  real(kind=R8), dimension(:,:), allocatable, public :: flwds        ! Down longwave flux at surface
-  !JW EAM uses precc, precsc, precsl, precsl instead of rain/snow below, but has to manipulate them
-  !JW     either is fine with me if someone feels strongly
-  real(kind=R8), dimension(:,:), allocatable, public :: rainc        ! liquid "convective" precip
-  real(kind=R8), dimension(:,:), allocatable, public :: rainl        ! liquid "large scale" precip
-  real(kind=R8), dimension(:,:), allocatable, public :: snowc        ! frozen "convective" precip
-  real(kind=R8), dimension(:,:), allocatable, public :: snowl        ! frozen "large scale" precip
-  real(kind=R8), dimension(:,:), allocatable, public :: soll         ! direct near-infrared incident solar radiation
-  real(kind=R8), dimension(:,:), allocatable, public :: sols         ! direct visible incident solar radiation
-  real(kind=R8), dimension(:,:), allocatable, public :: solld        ! diffuse near-infrared incident solar radiation
-  real(kind=R8), dimension(:,:), allocatable, public :: solsd        ! diffuse visible incident solar radiation
-  real(kind=R8), dimension(:,:), allocatable, public :: netsw        ! net shortwave radiation
+  ! variables that only go **into** ACE.
+  real(kind=R8), dimension(:,:), allocatable, public :: landfrac               ! land area fraction
+  real(kind=R8), dimension(:,:), allocatable, public :: ocnfrac                ! ocean area fraction
+  real(kind=R8), dimension(:,:), allocatable, public :: icefrac                ! sea-ice area fraction
+  real(kind=R8), dimension(:,:), allocatable, public :: phis                   ! surface geopotential
+  real(kind=R8), dimension(:,:), allocatable, public :: solin                  ! solar insulation
+
+  ! variables go **into** and **out** of ACE.  Excluding levels 1--8 fields for u, v, t, and specific_total_water
+  real(kind=R8), dimension(:,:), allocatable, public :: ps                     ! surface pressure
+  real(kind=R8), dimension(:,:), allocatable, public :: ts                     ! surface temperature (radiative)
+  real(kind=R8), dimension(:,:), allocatable, public :: t_0                    ! temperature level-0
+  real(kind=R8), dimension(:,:), allocatable, public :: specific_total_water_0 ! specific total water level-0
+  real(kind=R8), dimension(:,:), allocatable, public :: u_0                    ! zonal wind level-0
+  real(kind=R8), dimension(:,:), allocatable, public :: v_0                    ! meridional wind level-0
+
+  ! variables that only come **out** of ACE.
+  real(kind=R8), dimension(:,:), allocatable, public :: lhflx                  ! surface latent heat flux
+  real(kind=R8), dimension(:,:), allocatable, public :: shflx                  ! surface sensible heat flux
+  real(kind=R8), dimension(:,:), allocatable, public :: surface_precipitation_rate
+  real(kind=R8), dimension(:,:), allocatable, public :: surface_upward_longwave_flux
+  real(kind=R8), dimension(:,:), allocatable, public :: flut                   ! upwelling longwave flux at top of model
+  real(kind=R8), dimension(:,:), allocatable, public :: flds                   ! downwelling longwave flux at top of model
+  real(kind=R8), dimension(:,:), allocatable, public :: fsds                   ! downwelling solar flux at surace
+  real(kind=R8), dimension(:,:), allocatable, public :: surface_upward_shortwave_flux
+  real(kind=R8), dimension(:,:), allocatable, public :: top_of_atmos_upward_shortwave_flux
+  real(kind=R8), dimension(:,:), allocatable, public :: tendency_of_total_water_path_due_to_advection
 
   character(CS), public :: myModelName = 'atm'   ! user defined model name
 

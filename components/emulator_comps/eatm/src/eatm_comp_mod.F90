@@ -68,6 +68,10 @@ CONTAINS
     character(CL) :: calendar    ! calendar type
     character(CL) :: flds_strm
 
+    ! TODO (AN): add this to the namelist
+    character(CL)     :: ic_filename = "/global/cfs/cdirs/e3sm/anolan/ACE2-E3SMv3/initial_conditions/1971010100.nc"
+    type(file_desc_t) :: ncid    ! netcdf file id
+
     !--- formats ---
     character(*), parameter :: F00   = "('(eatm_comp_init) ',8a)"
     character(*), parameter :: F0L   = "('(eatm_comp_init) ',a, l2)"
@@ -87,48 +91,31 @@ CONTAINS
        if (masterproc) write(logunit_atm,F00) 'allocate AVs'
        call shr_sys_flush(logunit_atm)
 
-       allocate(shf(lsize_x,lsize_y))
-       allocate(cflx(lsize_x,lsize_y))
-       allocate(lhf(lsize_x,lsize_y))
-       allocate(wsx(lsize_x,lsize_y))
-       allocate(wsy(lsize_x,lsize_y))
-       allocate(lwup(lsize_x,lsize_y))
-       allocate(asdir(lsize_x,lsize_y))
-       allocate(aldir(lsize_x,lsize_y))
-       allocate(asdif(lsize_x,lsize_y))
-       allocate(aldif(lsize_x,lsize_y))
-       allocate(ts(lsize_x,lsize_y))
-       allocate(sst(lsize_x,lsize_y))
-       allocate(snowhland(lsize_x,lsize_y))
-       allocate(snowhice(lsize_x,lsize_y))
-       allocate(tref(lsize_x,lsize_y))
-       allocate(qref(lsize_x,lsize_y))
-       allocate(u10(lsize_x,lsize_y))
-       allocate(u10withgusts(lsize_x,lsize_y))
-       allocate(icefrac(lsize_x,lsize_y))
+       allocate(landfrac(lsize_x,lsize_y))
        allocate(ocnfrac(lsize_x,lsize_y))
-       allocate(lndfrac(lsize_x,lsize_y))
+       allocate(icefrac(lsize_x,lsize_y))
+       allocate(phis(lsize_x,lsize_y))
+       allocate(solin(lsize_x,lsize_y))
 
-       allocate(zbot(lsize_x,lsize_y))
-       allocate(ubot(lsize_x,lsize_y))
-       allocate(vbot(lsize_x,lsize_y))
-       allocate(tbot(lsize_x,lsize_y))
-       allocate(thbot(lsize_x,lsize_y))
-       allocate(qbot(lsize_x,lsize_y))
-       allocate(rho(lsize_x,lsize_y))
-       allocate(pbot(lsize_x,lsize_y))
-       allocate(psl(lsize_x,lsize_y))
-       allocate(flwds(lsize_x,lsize_y))
-       allocate(rainc(lsize_x,lsize_y))
-       allocate(rainl(lsize_x,lsize_y))
-       allocate(snowc(lsize_x,lsize_y))
-       allocate(snowl(lsize_x,lsize_y))
-       allocate(soll(lsize_x,lsize_y))
-       allocate(sols(lsize_x,lsize_y))
-       allocate(solld(lsize_x,lsize_y))
-       allocate(solsd(lsize_x,lsize_y))
-       allocate(netsw(lsize_x,lsize_y))
+       allocate(ps(lsize_x,lsize_y))
+       allocate(ts(lsize_x,lsize_y))
+       allocate(t_0(lsize_x,lsize_y))
+       allocate(specific_total_water_0(lsize_x,lsize_y))
+       allocate(u_0(lsize_x,lsize_y))
+       allocate(v_0(lsize_x,lsize_y))
 
+       allocate(lhflx(lsize_x,lsize_y))
+       allocate(shflx(lsize_x,lsize_y))
+       allocate(surface_precipitation_rate(lsize_x,lsize_y))
+       allocate(surface_upward_longwave_flux(lsize_x,lsize_y))
+       allocate(flut(lsize_x,lsize_y))
+       allocate(flds(lsize_x,lsize_y))
+       allocate(fsds(lsize_x,lsize_y))
+       allocate(surface_upward_shortwave_flux(lsize_x,lsize_y))
+       allocate(top_of_atmos_upward_shortwave_flux(lsize_x,lsize_y))
+       allocate(tendency_of_total_water_path_due_to_advection(lsize_x,lsize_y))
+
+       ! determined from precip based surface temp
        call t_stopf('eatm_initmctavs')
 
        !----------------------------------------------------------------------------
@@ -165,7 +152,17 @@ CONTAINS
     ! Set initial atm state
     !----------------------------------------------------------------------------
     !JW IC file?
+    ! populate all fields to zero OR from ACE IC if it's present
+    call t_startf ('eatm_grid')
 
+    call ncd_pio_openfile(ncid, trim(ic_filename), 0)
+
+    ! AN: will do the actual readin in here. Need to pay attention to C vs. Fortran
+    !     ordering for interoperability with FTorch
+    call ncd_pio_closefile(ncid)
+
+
+    call t_stopf ('eatm_grid')
     call t_stopf('EATM_INIT')
 
     return
@@ -296,47 +293,29 @@ CONTAINS
     call t_startf('EATM_FINAL')
 
     ! deallocate arrays from init step
-    deallocate(shf)
-    deallocate(cflx)
-    deallocate(lhf)
-    deallocate(wsx)
-    deallocate(wsy)
-    deallocate(lwup)
-    deallocate(asdir)
-    deallocate(aldir)
-    deallocate(asdif)
-    deallocate(aldif)
-    deallocate(ts)
-    deallocate(sst)
-    deallocate(snowhland)
-    deallocate(snowhice)
-    deallocate(tref)
-    deallocate(qref)
-    deallocate(u10)
-    deallocate(u10withgusts)
-    deallocate(icefrac)
+    deallocate(landfrac)
     deallocate(ocnfrac)
-    deallocate(lndfrac)
+    deallocate(icefrac)
+    deallocate(phis)
+    deallocate(solin)
 
-    deallocate(zbot)
-    deallocate(ubot)
-    deallocate(vbot)
-    deallocate(tbot)
-    deallocate(thbot)
-    deallocate(qbot)
-    deallocate(rho)
-    deallocate(pbot)
-    deallocate(psl)
-    deallocate(flwds)
-    deallocate(rainc)
-    deallocate(rainl)
-    deallocate(snowc)
-    deallocate(snowl)
-    deallocate(soll)
-    deallocate(sols)
-    deallocate(solld)
-    deallocate(solsd)
-    deallocate(netsw)
+    deallocate(ps)
+    deallocate(ts)
+    deallocate(t_0)
+    deallocate(specific_total_water_0)
+    deallocate(u_0)
+    deallocate(v_0)
+
+    deallocate(lhflx)
+    deallocate(shflx)
+    deallocate(surface_precipitation_rate)
+    deallocate(surface_upward_longwave_flux)
+    deallocate(flut)
+    deallocate(flds)
+    deallocate(fsds)
+    deallocate(surface_upward_shortwave_flux)
+    deallocate(top_of_atmos_upward_shortwave_flux)
+    deallocate(tendency_of_total_water_path_due_to_advection)
 
     if (masterproc) then
        write(logunit_atm,F91)
