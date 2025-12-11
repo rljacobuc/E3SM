@@ -406,34 +406,32 @@ contains
 
 !-----------------------------------------------------------------------
 
-  subroutine ncd_inqfdims(ncid, ns)
+  subroutine ncd_inqfdims(ncid, nlon, nlat)
 
     !-----------------------------------------------------------------------
-    ! !ARGUMENTS:
+    ! !arguments:
     type(file_desc_t), intent(inout):: ncid
-    integer          , intent(out)  :: ns
-    ! !LOCAL VARIABLES:
-    integer  :: dimid                                ! netCDF id
-    integer  :: ier                                  ! error status 
+    integer          , intent(out)  :: nlon, nlat
+    ! !local variables:
+    integer  :: dimid                                ! netcdf id
+    integer  :: ier                                  ! error status
     character(len=32) :: subname = 'surfrd_filedims' ! subroutine name
     !-----------------------------------------------------------------------
 
-    ns = 0
+    nlon = 0
+    nlat = 0
 
-    !JW modified for scrip file
-    call pio_seterrorhandling(ncid, PIO_BCAST_ERROR)
-    ier = pio_inq_dimid (ncid, 'grid_center_lon', dimid)
-    if (ier == PIO_NOERR) ier = pio_inq_dimlen(ncid, dimid, ns)
-    ier = pio_inq_dimid (ncid, 'grid_center_lon', dimid)
-    if (ier == PIO_NOERR) ier = pio_inq_dimlen(ncid, dimid, ns)
+    call pio_seterrorhandling(ncid, pio_bcast_error)
 
-    ier = pio_inq_dimid (ncid, 'grid_size', dimid)
-    if (ier == PIO_NOERR) ier = pio_inq_dimlen(ncid, dimid, ns)
+    ier = pio_inq_dimid (ncid, 'lon', dimid)
+    if (ier == PIO_NOERR) ier = pio_inq_dimlen(ncid, dimid, nlon)
+    ier = pio_inq_dimid (ncid, 'lat', dimid)
+    if (ier == PIO_NOERR) ier = pio_inq_dimlen(ncid, dimid, nlat)
 
-    call pio_seterrorhandling(ncid, PIO_INTERNAL_ERROR)
+    call pio_seterrorhandling(ncid, pio_internal_error)
 
-    if (ns == 0) then
-       write(logunit_atm,*) trim(subname),' ERROR: ns = ',ns,' cannot be zero '
+    if (nlon == 0 .or. nlat==0) then
+       write(logunit_atm,*) trim(subname),' error: nlon,nlat = ',nlon,nlat,' cannot be zero '
        call shr_sys_abort()
     end if
 

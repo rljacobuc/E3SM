@@ -650,18 +650,15 @@ CONTAINS
 
     call ncd_pio_openfile(ncid, trim(filename_eatm), 0)
 
-    call ncd_inqfdims(ncid, gsize)
+    call ncd_inqfdims(ncid, lsize_x, lsize_y)
 
     if (masterproc) then
-       write(logunit_atm,*) 'Values for lon/lat: ', gsize
+       write(logunit_atm,*) 'Values for lon/lat: ', lsize_x, lsize_y
        write(logunit_atm,*) 'Successfully read eatm dimensions'
        call shr_sys_flush(logunit_atm)
     endif
 
-    !JW for now let lsize = gsize (local vs global)
-    lsize   = gsize
-    lsize_x = gsize
-    lsize_y = 1
+    gsize = lsize_x * lsize_y
 
     allocate(lonc_g(gsize))
     allocate(latc_g(gsize))
